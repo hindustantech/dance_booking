@@ -7,7 +7,7 @@ import crypto from 'crypto';
 // @access  Public
 export const register = async (req, res, next) => {
     try {
-        const { name, groupName, Specialties, email, phone, address, password, role, deviceInfo } = req.body;
+        const { name, groupName, Specialties, email, phone, address, password, role, deviceInfo, longitude, latitude } = req.body;
         console.log(req.body);
 
         // Check if user already exists
@@ -27,7 +27,19 @@ export const register = async (req, res, next) => {
             });
         }
 
-        // Create user with location (default coordinates)
+        // Validate coordinates if provided
+        let coordinates = [0, 0]; // Default coordinates
+        if (longitude !== undefined && latitude !== undefined) {
+            if (isNaN(longitude) || isNaN(latitude)) {
+                return res.status(400).json({
+                    success: false,
+                    message: 'Invalid coordinates provided'
+                });
+            }
+            coordinates = [parseFloat(longitude), parseFloat(latitude)];
+        }
+
+        // Create user with location
         const userData = {
             name,
             email,
@@ -38,7 +50,7 @@ export const register = async (req, res, next) => {
             deviceInfo,
             location: {
                 type: 'Point',
-                coordinates: [0, 0] // Default coordinates
+                coordinates: coordinates
             }
         };
 
