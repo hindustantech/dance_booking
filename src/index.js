@@ -14,6 +14,7 @@ const app = express();
 // Connect to the database
 await connectDB();
 
+app.use(cors());
 // Body parser middleware
 app.use(json());
 

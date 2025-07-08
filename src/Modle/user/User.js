@@ -9,6 +9,20 @@ const userSchema = new Schema({
         required: true,
         trim: true
     },
+    groupName: {
+        type: String,
+        required: function() {
+            return this.role === 'archestra';
+        },
+        trim: true
+    },
+    Specialties: {
+        type: String,
+        required: function() {
+            return this.role === 'archestra';
+        },
+        trim: true
+    },
     email: {
         type: String,
         required: true,
@@ -25,7 +39,7 @@ const userSchema = new Schema({
             type: String,
             enum: ['Point'],
             default: 'Point'
-        },
+        },  
         coordinates: {
             type: [Number],
             default: [0, 0]
@@ -38,7 +52,7 @@ const userSchema = new Schema({
     },
     role: {
         type: String,
-        enum: ['admin', 'user', 'superadmin'],
+        enum: ['archestra', 'user', 'superadmin'],
         default: 'user'
     },
     password: {
