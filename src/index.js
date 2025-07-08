@@ -6,7 +6,7 @@ const { json } = pkg;
 import dotenv from 'dotenv';
 import connectDB from './Config/db.js';
 import authRoute from './Route/AuthRoute/AuthRoute.js'
-
+import cors from 'cors';
 dotenv.config();
 
 const app = express();
