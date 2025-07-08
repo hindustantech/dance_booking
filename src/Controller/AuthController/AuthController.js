@@ -5,10 +5,9 @@ import crypto from 'crypto';
 // @desc    Register user
 // @route   POST /api/auth/register
 // @access  Public
-
 export const register = async (req, res, next) => {
     try {
-        const { name, email, phone, address, password, role } = req.body;
+        const { name, groupName, Specialties, email, phone, address, password, role, deviceInfo } = req.body;
         console.log(req.body);
 
         // Check if user already exists
@@ -20,15 +19,36 @@ export const register = async (req, res, next) => {
             });
         }
 
-        // Create user
-        const user = await User.create({
+        // Validate required fields based on role
+        if (role === 'archestra' && (!groupName || !Specialties)) {
+            return res.status(400).json({
+                success: false,
+                message: 'Group name and Specialties are required for archestra role'
+            });
+        }
+
+        // Create user with location (default coordinates)
+        const userData = {
             name,
             email,
             phone,
             address,
             password,
-            role
-        });
+            role,
+            deviceInfo,
+            location: {
+                type: 'Point',
+                coordinates: [0, 0] // Default coordinates
+            }
+        };
+
+        // Add role-specific fields
+        if (role === 'archestra') {
+            userData.groupName = groupName;
+            userData.Specialties = Specialties;
+        }
+
+        const user = await User.create(userData);
 
         // Generate OTP
         const otp = user.generateOTP();
