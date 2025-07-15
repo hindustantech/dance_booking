@@ -293,9 +293,71 @@ export const verifyLoginOTP = async (req, res, next) => {
     }
 };
 
+
+
+// @desc    Get paginated, searchable list of users with role 'archestra', verified users on top
+// @route   GET /api/auth/archestra
+// @access  Private/Admin (or as per your auth logic)
+
+export const getArchestraUsers = async (req, res, next) => {
+    try {
+        // Pagination
+        const page = parseInt(req.query.page) > 0 ? parseInt(req.query.page) : 1;
+        const limit = parseInt(req.query.limit) > 0 ? parseInt(req.query.limit) : 10;
+        const skip = (page - 1) * limit;
+
+        // Search
+        const search = req.query.search ? req.query.search.trim() : '';
+        let searchQuery = {};
+        if (search) {
+            // Use MongoDB Atlas Search (if available) for fast, modern search; fallback to $text or $regex
+            searchQuery = {
+                $or: [
+                    { $text: { $search: search } }, // If text index exists
+                    { name: { $regex: search, $options: 'i' } },
+                    { email: { $regex: search, $options: 'i' } }
+                ]
+            };
+        }
+
+        // Main query: role is 'archestra'
+        const query = {
+            role: 'archestra',
+            ...searchQuery
+        };
+
+        // Sort: verified users first, then by name
+        const sort = { isVerified: -1, name: 1 };
+
+        // Get total count for pagination
+        const total = await User.countDocuments(query);
+
+        // Get paginated users
+        const users = await User.find(query)
+            .sort(sort)
+            .skip(skip)
+            .limit(limit)
+            .select('-password -otp -otpExpires -refreshToken'); // Exclude sensitive fields
+
+        res.status(200).json({
+            success: true,
+            page,
+            limit,
+            total,
+            totalPages: Math.ceil(total / limit),
+            users
+        });
+    } catch (error) {
+        next(error);
+    }
+};
+
+
 // @desc    Logout user
 // @route   POST /api/auth/logout
 // @access  Private
+
+
 
 export const logout = async (req, res, next) => {
     try {

@@ -5,7 +5,8 @@ import {
     login,
     verifyLoginOTP,
     logout,
-    refreshToken
+    refreshToken,
+    getArchestraUsers
 } from '../../Controller/AuthController/AuthController.js';
 import { protect } from '../../Middleware/authMiddleware.js';
 
@@ -40,5 +41,10 @@ router.post('/logout', protect, logout);
 // @route   POST /api/auth/refresh-token
 // @access  Public
 router.post('/refresh-token', refreshToken);
+
+// @desc    Get paginated, searchable list of users with role 'archestra', verified users on top
+// @route   GET /api/auth/archestra
+// @access  Private/Admin (or as per your auth logic)
+router.get('/archestra', protect, getArchestraUsers);
 
 export default router;
