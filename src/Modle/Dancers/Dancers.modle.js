@@ -56,6 +56,10 @@ const DancerSchema = new Schema({
         type: String,
         default: null
     },
+    videos: [{
+        type: String,
+        default: []
+    }],
     isActive: {
         type: Boolean,
         default: true
